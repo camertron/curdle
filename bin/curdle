@@ -1,0 +1,8 @@
+#! /usr/bin/env ruby
+
+require 'curdle'
+
+ARGV.each do |file|
+  Curdle.process_file(file)
+  puts "Wrote #{file}"
+end

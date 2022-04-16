@@ -1,0 +1,5 @@
+.DS_Store
+.tool-versions
+Gemfile.lock
+pkg/
+
