@@ -1,5 +1,4 @@
 require 'parser/current'
-require 'pry-byebug'
 
 class RemoveSorbet < ::Parser::TreeRewriter
   def on_send(node)
