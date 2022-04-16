@@ -11,7 +11,7 @@ module Curdle
   def self.process(code, filename = '(curdle)')
     ast = Parser::CurrentRuby.parse(code)
     buffer = Parser::Source::Buffer.new(filename, source: code)
-    rewriter = RemoveSorbet.new
+    rewriter = Curdle::RemoveSorbet.new
     rewriter.rewrite(buffer, ast)
   end
 end
