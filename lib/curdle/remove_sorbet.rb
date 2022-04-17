@@ -65,7 +65,9 @@ module Curdle
       receiver, name = *send_node
       return false unless receiver && receiver.location.expression.is?('T')
 
-      remove_cast(send_node) || remove_must(send_node)
+      remove_cast(send_node) ||
+        remove_must(send_node) ||
+        remove_unsafe(send_node)
 
       true
     end
@@ -96,6 +98,15 @@ module Curdle
     def remove_must(send_node)
       _, name, *args = *send_node
       return false unless name == :must
+
+      remove_method_call(send_node)
+
+      true
+    end
+
+    def remove_unsafe(send_node)
+      _, name, *args = *send_node
+      return false unless name == :unsafe
 
       remove_method_call(send_node)
 
