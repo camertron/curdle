@@ -2,6 +2,7 @@ require 'parser/current'
 
 module Curdle
   autoload :RemoveSorbet, 'curdle/remove_sorbet'
+  autoload :Tasks,        'curdle/tasks'
 
   def self.process_file(file)
     code = File.read(file)

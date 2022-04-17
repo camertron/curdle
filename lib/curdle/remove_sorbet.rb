@@ -38,10 +38,9 @@ module Curdle
       return false unless args.size == 1
       return false unless args.first.location.expression.is?(const_str)
 
-      remove(
-        include_surrounding_whitespace(
-          send_node.location.expression
-        )
+      replace(
+        send_node.location.expression,
+        "# #{send_node.location.expression.source}"
       )
 
       true
@@ -52,11 +51,7 @@ module Curdle
       receiver, name, *args = *send_node
       return false unless receiver.nil? && name == :sig && args.empty?
 
-      remove(
-        include_surrounding_whitespace(
-          block_node.location.expression
-        )
-      )
+      comment_out_node(block_node)
 
       true
     end
@@ -76,11 +71,7 @@ module Curdle
       receiver, name = *send_node
       return false unless receiver.nil? && name == :abstract!
 
-      remove(
-        include_surrounding_whitespace(
-          send_node.location.expression
-        )
-      )
+      comment_out_node(send_node)
 
       true
     end
@@ -135,11 +126,7 @@ module Curdle
         # Indicates the @ivar = T.let(@ivar, ...) pattern. The entire ivar
         # assignment statement can be removed
         if lhs_var == rhs_var
-          remove(
-            include_surrounding_whitespace(
-              asgn_node.location.expression
-            )
-          )
+          comment_out_node(asgn_node)
         end
       else
         # indicates assigning the ivar to an actual value, in which case we
@@ -158,11 +145,7 @@ module Curdle
       receiver, name = *value_node
       return false unless receiver.nil? && name == :type_member
 
-      remove(
-        include_surrounding_whitespace(
-          casgn_node.location.expression
-        )
-      )
+      comment_out_node(casgn_node)
 
       true
     end
@@ -175,11 +158,7 @@ module Curdle
       receiver, name = *send_node
       return false unless receiver && receiver.location.expression.is?('T') && name == :type_alias
 
-      remove(
-        include_surrounding_whitespace(
-          casgn_node.location.expression
-        )
-      )
+      comment_out_node(casgn_node)
 
       true
     end
@@ -203,6 +182,16 @@ module Curdle
       remove(args[1].location.expression.with(begin_pos: first_arg_loc.end_pos))
     end
 
+    def comment_out_node(node)
+      location = include_leading_whitespace(node.location.expression)
+      lines = location.source.split(/\r?\n/)
+      indent = lines.map { |line| line.index(/[\S]/) }.min
+      new_str = lines.map { |line| line.insert(indent, '# ') }.join("\n")
+      replace(location, new_str)
+    end
+
+    # this isn't used anywhere but it was so hard to write I'm keeping it in case
+    # I ever need to use it again
     def include_surrounding_whitespace(location)
       source = location.source_buffer.source
       start = source.rindex(/[^ \t]/, location.begin_pos - 1) + 1
@@ -213,6 +202,12 @@ module Curdle
       end
 
       location
+    end
+
+    def include_leading_whitespace(location)
+      source = location.source_buffer.source
+      start = source.rindex(/[^ \t]/, location.begin_pos - 1) + 1
+      location.with(begin_pos: start)
     end
   end
 end
