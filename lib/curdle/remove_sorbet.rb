@@ -190,24 +190,20 @@ module Curdle
       replace(location, new_str)
     end
 
-    # this isn't used anywhere but it was so hard to write I'm keeping it in case
-    # I ever need to use it again
-    def include_surrounding_whitespace(location)
+    def include_leading_whitespace(location)
       source = location.source_buffer.source
       start = source.rindex(/[^ \t]/, location.begin_pos - 1) + 1
-      location = location.with(begin_pos: start)
+      location.with(begin_pos: start)
+    end
 
+    # this isn't used anywhere but it was so hard to write I'm keeping it in case
+    # I ever need to use it again
+    def include_trailing_whitespace(location)
       if m = source.match(/[ \t]*(?:\r?\n)*/, location.end_pos)
         location = location.with(end_pos: location.end_pos + m[0].size)
       end
 
       location
-    end
-
-    def include_leading_whitespace(location)
-      source = location.source_buffer.source
-      start = source.rindex(/[^ \t]/, location.begin_pos - 1) + 1
-      location.with(begin_pos: start)
     end
   end
 end
