@@ -142,12 +142,22 @@ module Curdle
 
     def remove_type_member(casgn_node)
       _, _const_name, value_node = *casgn_node
-      return false unless value_node.type == :send
 
-      receiver, name = *value_node
-      return false unless receiver.nil? && name == :type_member
+      case value_node.type
+        when :send
+          receiver, name = *value_node
+          return false unless receiver.nil? && name == :type_member
 
-      comment_out_node(casgn_node)
+          comment_out_node(casgn_node)
+        when :block
+          send_node, = *value_node
+          receiver, name, _ = *send_node
+          return false unless receiver.nil? && name == :type_member
+
+          comment_out_node(casgn_node)
+        else
+          return false
+      end
 
       true
     end

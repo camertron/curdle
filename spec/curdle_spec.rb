@@ -157,6 +157,22 @@ describe Curdle do
     END2
   end
 
+  it 'removes block-based type_members' do
+    verify(<<~END1, <<~END2)
+      class Foo
+        extend T::Generic
+
+        Elem = type_member { { fixed: Bar } }
+      end
+    END1
+      class Foo
+        # extend T::Generic
+
+        # Elem = type_member { { fixed: Bar } }
+      end
+    END2
+  end
+
   it 'removes type_aliases' do
     verify(<<~END1, <<~END2)
       class Foo
