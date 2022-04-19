@@ -49,7 +49,9 @@ module Curdle
     def remove_sig(block_node)
       send_node, = *block_node
       receiver, name, *args = *send_node
-      return false unless receiver.nil? && name == :sig && args.empty?
+
+      return false unless receiver.nil? || receiver.location.expression.is?('T::Sig::WithoutRuntime')
+      return false unless name == :sig && args.empty?
 
       comment_out_node(block_node)
 

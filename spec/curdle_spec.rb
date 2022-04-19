@@ -77,6 +77,26 @@ describe Curdle do
     END2
   end
 
+  it 'removes T::Sig::WithoutRuntime sigs' do
+    verify(<<~END1, <<~END2)
+      class Foo
+        T::Sig::WithoutRuntime.sig {
+          params(bar: String, baz: Integer).returns(String)
+        }
+        def foo(bar, baz)
+        end
+      end
+    END1
+      class Foo
+        # T::Sig::WithoutRuntime.sig {
+        #   params(bar: String, baz: Integer).returns(String)
+        # }
+        def foo(bar, baz)
+        end
+      end
+    END2
+  end
+
   it 'removes T.let assigned to an instance variable' do
     verify(<<~END1, <<~END2)
       class Foo
