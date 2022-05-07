@@ -1,3 +1,7 @@
+## 1.2.2
+* More fixes for the aforementioned bug in `gem build`.
+  - We need to use `Dir.chdir` instead of relying on `-C` at all.
+
 ## 1.2.1
 * Fix bug caused by older versions of `gem build` ignoring the `-C` flag.
 

@@ -24,14 +24,11 @@ module Curdle
               end
             end
 
-            system("gem build --silent -C #{build_dir}")
-            artifact = Dir.glob(File.join(build_dir, "#{spec.name}-#{spec.version}.gem")).first
-
-            # some versions of Rubygems simply ignore the -C flag and build the gem in
-            # the current directory instead
-            unless artifact
-              artifact = Dir.glob("#{spec.name}-#{spec.version}.gem").first
+            Dir.chdir(build_dir) do
+              system("gem build --silent")
             end
+
+            artifact = File.join(build_dir, "#{spec.name}-#{spec.version}.gem")
 
             FileUtils.mkdir_p('pkg')
             artifact_dest = File.join('pkg', File.basename(artifact))
